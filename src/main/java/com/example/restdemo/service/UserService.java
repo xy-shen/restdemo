@@ -25,7 +25,7 @@ public class UserService {
   }
 
   public User getById(Long id) {
-    return repo.findById(id).orElseThrow(() -> new RuntimeException("user not found with id: " + id));
+    return repo.findById(id).orElse(null);
   }
 
   public User update(Long id, User req) {
