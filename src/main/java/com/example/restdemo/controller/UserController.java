@@ -5,6 +5,7 @@ import com.example.restdemo.exception.ApiError;
 import com.example.restdemo.exception.UserNotFoundException;
 import com.example.restdemo.service.UserService;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Min;
 import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
@@ -18,7 +19,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -48,7 +48,7 @@ public class UserController {
   }
 
   @GetMapping("/{id}")
-  public User getUserById(@PathVariable Long id) {
+  public User getUserById(@PathVariable @Min(1) Long id) {
 //    return user1;
     User user = service.getById(id);
     if (user == null) {
@@ -58,7 +58,7 @@ public class UserController {
   }
 
   @PostMapping("/{id}")
-  public User update(@PathVariable Long id, @RequestBody User user) {
+  public User update(@PathVariable @Min(1) Long id, @Valid @RequestBody User user) {
     return service.update(id, user);
   }
 
@@ -70,17 +70,17 @@ public class UserController {
   }
 
   @DeleteMapping("/{id}")
-  public void delete(@PathVariable Long id) {
+  public void delete(@PathVariable @Min(1) Long id) {
     service.delete(id);
   }
 
-  @ExceptionHandler(UserNotFoundException.class)
-  public ResponseEntity<ApiError> exceptionHandlerUserNotFound(Exception ex) {
-    ApiError error = new ApiError(
-        Instant.now(),
-        HttpStatus.NOT_FOUND.value(),
-        ex.getMessage()
-    );
-    return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
-  }
+//  @ExceptionHandler(UserNotFoundException.class)
+//  public ResponseEntity<ApiError> exceptionHandlerUserNotFound(Exception ex) {
+//    ApiError error = new ApiError(
+//        Instant.now(),
+//        HttpStatus.NOT_FOUND.value(),
+//        ex.getMessage()
+//    );
+//    return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
+//  }
 }

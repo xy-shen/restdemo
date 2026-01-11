@@ -1,6 +1,7 @@
 package com.example.restdemo.service;
 
 import com.example.restdemo.entity.User;
+import com.example.restdemo.exception.UserAgeInvalidException;
 import com.example.restdemo.repository.UserRepository;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +18,7 @@ public class UserService {
   }
 
   public User create(User user) {
+    if (user.getAge() > 150) throw new UserAgeInvalidException(user.getAge());
     return repo.save(user);
   }
 

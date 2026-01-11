@@ -6,8 +6,9 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
-import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.PositiveOrZero;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -27,11 +28,13 @@ public class User {
   @Column(nullable = false)
   private String name;
 
-  @Min(0)
+  @NotNull
+  @PositiveOrZero
   @Column(nullable = false)
   private Integer age;
 
-  @Min(0)
+  @NotNull
+  @PositiveOrZero
   @Column(nullable = false)
   private Double salary;
 }
