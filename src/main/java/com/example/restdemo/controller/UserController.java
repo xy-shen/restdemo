@@ -1,18 +1,16 @@
 package com.example.restdemo.controller;
 
 import com.example.restdemo.entity.User;
-import com.example.restdemo.exception.ApiError;
 import com.example.restdemo.exception.UserNotFoundException;
 import com.example.restdemo.service.UserService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
-import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -37,17 +35,13 @@ public class UserController {
   }
 
   @GetMapping
-  public List<User> getAll(@RequestParam(required = false, defaultValue = "salary") String sort) {
-    List<User> users = service.getAll();
-    if (sort.equals("salary")) {
-      Collections.sort(users, (v1, v2) -> Double.compare(v1.getSalary(), v2.getSalary()));
-    } else if (sort.equals("age")) {
-      Collections.sort(users, (v1, v2) -> Integer.compare(v1.getAge(), v2.getAge()));
-    }
-    return users;
+  @Cacheable(cacheNames = "usersAll", key = "#sort")
+  public List<User> getAllSorted(@RequestParam(required = false, defaultValue = "salary") String sort) {
+    return service.getAll(sort);
   }
 
   @GetMapping("/{id}")
+  @Cacheable(cacheNames = "usersById", key = "#id")
   public User getUserById(@PathVariable @Min(1) Long id) {
 //    return user1;
     User user = service.getById(id);
