@@ -36,3 +36,8 @@ management:
 
 server:
   port: 8080
+
+logging:
+  level:
+    root: INFO
+    com.example.restdemo: DEBUG

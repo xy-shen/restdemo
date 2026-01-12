@@ -5,6 +5,7 @@ import com.example.restdemo.exception.UserAgeInvalidException;
 import com.example.restdemo.repository.UserRepository;
 import java.util.Collections;
 import java.util.List;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
@@ -13,13 +14,16 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
+@Slf4j
 public class UserService {
 
   private final UserRepository repo;
+  private final UserAsyncService userAsyncService;
 
   @Autowired
-  public UserService(UserRepository repo) {
+  public UserService(UserRepository repo, UserAsyncService userAsyncService) {
     this.repo = repo;
+    this.userAsyncService = userAsyncService;
   }
 
   @Transactional(rollbackFor = Exception.class)
@@ -28,8 +32,14 @@ public class UserService {
       evict = @CacheEvict(cacheNames = "usersAll", allEntries = true)
   )
   public User create(User user) {
-    if (user.getAge() > 150) throw new UserAgeInvalidException(user.getAge());
-    return repo.save(user);
+    if (user.getAge() > 150) {
+      log.warn("Invalid user age: {}", user.getAge());
+      throw new UserAgeInvalidException(user.getAge());
+    }
+    User saved = repo.save(user);
+    userAsyncService.logUserCreated(saved.getId());
+    log.info("User created with id: {}", saved.getId());
+    return saved;
   }
 
   @Transactional(readOnly = true)
@@ -54,6 +64,10 @@ public class UserService {
       evict = @CacheEvict(cacheNames = "usersAll", allEntries = true)
   )
   public User update(Long id, User req) {
+    if (req.getAge() > 150) {
+      log.warn("Invalid user age: {}", req.getAge());
+      throw new UserAgeInvalidException(req.getAge());
+    }
     User existing = getById(id);
     existing.setName(req.getName());
     existing.setAge(req.getAge());
@@ -70,6 +84,7 @@ public class UserService {
   )
   public void delete(Long id) {
     if (!repo.existsById(id)) {
+      log.warn("Can't find user with id: {}", id);
       throw new RuntimeException("user not found with id: " + id);
     }
     repo.deleteById(id);

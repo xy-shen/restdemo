@@ -5,8 +5,8 @@ import com.example.restdemo.exception.UserNotFoundException;
 import com.example.restdemo.service.UserService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
-import java.util.Collections;
 import java.util.List;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api/users")
+@Slf4j
 public class UserController {
 
   private final UserService service;
@@ -46,6 +47,7 @@ public class UserController {
 //    return user1;
     User user = service.getById(id);
     if (user == null) {
+      log.warn("Can't find user with id: {}", id);
       throw new UserNotFoundException(id);
     }
     return user;
