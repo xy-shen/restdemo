@@ -22,5 +22,11 @@ public class UserAsyncService {
 
     log.info("Async task finished for userId={}", userId);
   }
+
+//  @Async("userExecutor")
+//  public CompletableFuture<String> generateReport(Long userId) {
+//    // long work
+//    return CompletableFuture.completedFuture("async work done for " + userId);
+//  }
 }
 
